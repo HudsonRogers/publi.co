@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publi.Co - Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Publi.Co</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Usuários</a>
+    <a href="#">Publicações</a>
+    <a href="#">Planos</a>
+    <a href="#">Configurações</a>
+  </div>
+
+  <!-- Conteúdo principal -->
+  <div class="main">
+    <h1>Dashboard</h1>
+
+    <!-- Visão Geral -->
+    <div class="card">
+      <h3>Visão Geral</h3>
+      <p>Total de Usuários: <span id="totalUsuarios">0</span></p>
+      <p>Total de Publicações: <span id="totalPublicacoes">0</span></p>
+    </div>
+
+    <!-- Planos Disponíveis -->
+    <div class="card">
+      <h3>Planos Disponíveis</h3>
+      <ul id="listaPlanos"></ul>
+    </div>
+
+    <!-- Usuários Cadastrados -->
+    <div class="card">
+      <h3>Usuários Cadastrados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Plano</th>
+            <th>Data Criação</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaUsuarios"></tbody>
+      </table>
+    </div>
+
+    <!-- Publicações Recentes -->
+    <div class="card">
+      <h3>Publicações Recentes</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Resumo</th>
+            <th>Autor</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaPublicacoes"></tbody>
+      </table>
+    </div>
+
+     <div class="card">
+        <h3>Gráficos</h3>
+        <canvas id="usuariosPlanoChart"></canvas>
+        <canvas id="publicacoesChart"></canvas>
+    </div>
+
+  </div>
+
+  <script>
+    async function carregarDashboard() {
+      try {
+        // Visão Geral
+        const resDash = await fetch("http://localhost:3000/api/dashboard");
+        const dash = await resDash.json();
+        document.getElementById("totalUsuarios").textContent = dash.usuarios;
+        document.getElementById("totalPublicacoes").textContent = dash.publicacoes;
+
+        // Planos
+        const resPlanos = await fetch("http://localhost:3000/api/planos");
+        const planos = await resPlanos.json();
+        const listaPlanos = document.getElementById("listaPlanos");
+        listaPlanos.innerHTML = "";
+        planos.forEach(p => {
+          const li = document.createElement("li");
+          li.textContent = `${p.nome} - R$${p.preco || "Sob consulta"}`;
+          listaPlanos.appendChild(li);
+        });
+
+        // Usuários
+        const resUsuarios = await fetch("http://localhost:3000/api/usuarios");
+        const usuarios = await resUsuarios.json();
+        const tabelaUsuarios = document.getElementById("tabelaUsuarios");
+        tabelaUsuarios.innerHTML = "";
+        usuarios.forEach(u => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${u.id}</td>
+            <td>${u.nome}</td>
+            <td>${u.email}</td>
+            <td>${u.plano || "Sem plano"}</td>
+            <td>${new Date(u.data_criacao).toLocaleDateString("pt-BR")}</td>
+          `;
+          tabelaUsuarios.appendChild(tr);
+        });
+
+        // Publicações
+        const resPublicacoes = await fetch("http://localhost:3000/api/publicacoes");
+        const publicacoes = await resPublicacoes.json();
+        const tabelaPublicacoes = document.getElementById("tabelaPublicacoes");
+        tabelaPublicacoes.innerHTML = "";
+        publicacoes.forEach(p => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${p.id}</td>
+            <td>${p.titulo}</td>
+            <td>${p.resumo}...</td>
+            <td>${p.autor || "Desconhecido"}</td>
+            <td>${new Date(p.data_publicacao).toLocaleDateString("pt-BR")}</td>
+          `;
+          tabelaPublicacoes.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar dashboard:", error);
+      }
+    }
+
+    async function carregarGraficos() {
+  try {
+    // ==== Usuários por plano ====
+    const resUsuarios = await fetch("http://localhost:3000/api/usuarios");
+    const usuarios = await resUsuarios.json();
+
+    const planoContagem = {};
+    usuarios.forEach(u => {
+      const plano = u.plano || "Sem plano";
+      planoContagem[plano] = (planoContagem[plano] || 0) + 1;
+    });
+
+    const ctx1 = document.getElementById("usuariosPlanoChart").getContext("2d");
+    new Chart(ctx1, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(planoContagem),
+        datasets: [{
+          label: 'Usuários por plano',
+          data: Object.values(planoContagem),
+          backgroundColor: ['#00e5ff','#ff6f61','#ffc107','#4caf50','#9c27b0'],
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+
+    // ==== Publicações por mês ====
+    const resPublicacoes = await fetch("http://localhost:3000/api/publicacoes");
+    const publicacoes = await resPublicacoes.json();
+
+    // Gerar dados por mês
+    const meses = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+    const pubMes = Array(12).fill(0);
+    publicacoes.forEach(p => {
+      const d = new Date(p.data_publicacao);
+      pubMes[d.getMonth()]++;
+    });
+
+    const ctx2 = document.getElementById("publicacoesChart").getContext("2d");
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: meses,
+        datasets: [{
+          label: 'Publicações por mês',
+          data: pubMes,
+          backgroundColor: '#00e5ff'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Erro ao carregar gráficos:", error);
+  }
+}
+    carregarGraficos();
+
+    carregarDashboard();
+  </script>
+
+</body>
+</html>
