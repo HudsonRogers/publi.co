@@ -1,12 +1,39 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("../db/db");
+let ejs = require('ejs');
+// Importar a conexão com o banco de dados
+const connection = require("./database/db");
+// importando as rotas de controle
+const controlePublicacoes = require("./Publicacoes/ControlePublicacoes");
+const Publicacoes = require("./Publicacoes/Publicacoes");
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-/* ===== Dashboard ===== */
+//para reconhecer arquivos staticos
+app.use(express("public"));
+
+// autenticando com o banco de dados
+connection
+    .authenticate().then(() => {
+        console.log("Conexão com o Banco de dados realizada com sucesso!");
+    }).catch((error) => {
+        console.log("Erro BD: \n" + error);
+    });
+
+app.use("/", controlePublicacoes);
+
+app.get("/", (req, res) => {
+    res.render("index");
+});
+app.listen(3000, () => (console.log("✅ API rodando em http://localhost:3000")));
+
+/*
+// ===== Dashboard ===== 
 app.get("/api/dashboard", async (req, res) => {
   try {
     const [usuarios] = await db.query("SELECT COUNT(*) AS total FROM usuarios");
@@ -26,7 +53,7 @@ app.get("/api/dashboard", async (req, res) => {
   }
 });
 
-/* ===== Planos ===== */
+// ===== Planos ===== 
 app.get("/api/planos", async (req, res) => {
   try {
     const [planos] = await db.query("SELECT * FROM planos WHERE ativo = TRUE");
@@ -36,7 +63,7 @@ app.get("/api/planos", async (req, res) => {
   }
 });
 
-/* ===== Usuários ===== */
+// ===== Usuários ===== 
 app.get("/api/usuarios", async (req, res) => {
   try {
     const [usuarios] = await db.query(`
@@ -56,7 +83,7 @@ app.get("/api/usuarios", async (req, res) => {
   }
 });
 
-/* ===== Publicações ===== */
+// ===== Publicações ===== 
 app.get("/api/publicacoes", async (req, res) => {
   try {
     const [publicacoes] = await db.query(`
@@ -75,6 +102,6 @@ app.get("/api/publicacoes", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+*/
 
-app.listen(3000, () => console.log("✅ API rodando em http://localhost:3000"));
 // comentario de teste
