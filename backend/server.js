@@ -1,18 +1,19 @@
 const express = require("express");
+const app = express();
 const cors = require("cors");
-let ejs = require('ejs');
+const path = require("path");
 // Importar a conexão com o banco de dados
 const connection = require("./database/db");
 // importando as rotas de controle
 const controlePublicacoes = require("./Publicacoes/ControlePublicacoes");
-const Publicacoes = require("./Publicacoes/Publicacoes");
+//const Publicacoes = require("./Publicacoes/Publicacoes");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 //para reconhecer arquivos staticos
 app.use(express("public"));
@@ -32,7 +33,7 @@ app.get("/", (req, res) => {
 });
 app.listen(3000, () => (console.log("✅ API rodando em http://localhost:3000")));
 
-/*
+const db = require("./database/db");
 // ===== Dashboard ===== 
 app.get("/api/dashboard", async (req, res) => {
   try {
@@ -102,6 +103,6 @@ app.get("/api/publicacoes", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-*/
+
 
 // comentario de teste

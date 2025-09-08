@@ -1,83 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Publi.Co - Dashboard</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-  <div class="sidebar">
-    <h2>Publi.Co</h2>
-    <a href="#">Dashboard</a>
-    <a href="#">Usuários</a>
-    <a href="#">Publicações</a>
-    <a href="#">Planos</a>
-    <a href="#">Configurações</a>
-  </div>
-
-  <!-- Conteúdo principal -->
-  <div class="main">
-    <h1>Dashboard</h1>
-
-    <!-- Visão Geral -->
-    <div class="card">
-      <h3>Visão Geral</h3>
-      <p>Total de Usuários: <span id="totalUsuarios">0</span></p>
-      <p>Total de Publicações: <span id="totalPublicacoes">0</span></p>
-    </div>
-
-    <!-- Planos Disponíveis -->
-    <div class="card">
-      <h3>Planos Disponíveis</h3>
-      <ul id="listaPlanos"></ul>
-    </div>
-
-    <!-- Usuários Cadastrados -->
-    <div class="card">
-      <h3>Usuários Cadastrados</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Plano</th>
-            <th>Data Criação</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaUsuarios"></tbody>
-      </table>
-    </div>
-
-    <!-- Publicações Recentes -->
-    <div class="card">
-      <h3>Publicações Recentes</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Resumo</th>
-            <th>Autor</th>
-            <th>Data</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaPublicacoes"></tbody>
-      </table>
-    </div>
-
-     <div class="card">
-        <h3>Gráficos</h3>
-        <canvas id="usuariosPlanoChart"></canvas>
-        <canvas id="publicacoesChart"></canvas>
-    </div>
-
-  </div>
-
-  <script>
-    async function carregarDashboard() {
+alert("animation.js carregado");
+async function carregarDashboard() {
       try {
         // Visão Geral
         const resDash = await fetch("http://localhost:3000/api/dashboard");
@@ -207,7 +129,3 @@
     carregarGraficos();
 
     carregarDashboard();
-  </script>
-
-</body>
-</html>
