@@ -1,4 +1,4 @@
-alert("animation.js carregado");
+
 async function carregarDashboard() {
       try {
         // Visão Geral
