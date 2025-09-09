@@ -7,6 +7,8 @@ const connection = require("./database/db");
 // importando as rotas de controle
 const controlePublicacoes = require("./Publicacoes/ControlePublicacoes");
 //const Publicacoes = require("./Publicacoes/Publicacoes");
+//importando o model Publicacoes para sincronnizar com o banco
+const Publicacoes = require("./Publicacoes/Publicacoes");
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -25,6 +27,16 @@ connection
     }).catch((error) => {
         console.log("Erro BD: \n" + error);
     });
+// sincronizando com o banco de dados
+async function sincronizarBD() {
+  try {
+    Publicacoes.sync({ force: false });
+    console.log("Banco de dados sincronizado com sucesso!");
+  } catch (error) {
+    console.log("Erro ao sincronizar o banco de dados: \n" + error);
+  }
+};
+sincronizarBD();
 
 app.use("/", controlePublicacoes);
 
@@ -33,6 +45,7 @@ app.get("/", (req, res) => {
 });
 app.listen(3000, () => (console.log("✅ API rodando em http://localhost:3000")));
 
+/*
 const db = require("./database/db");
 // ===== Dashboard ===== 
 app.get("/api/dashboard", async (req, res) => {
@@ -103,6 +116,6 @@ app.get("/api/publicacoes", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
+*/
 
 // comentario de teste
