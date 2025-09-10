@@ -6,4 +6,7 @@ router.get("/publicacoes", async (req, res) => {
     res.send("Listar publicações - TESTE");
 });
 
+
+
+
 module.exports = router;

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../public/css/login.css">
+  <title>Login - Publi.Co</title>
+  
+</head>
+<body>
+  <div class="wrap">
+    <div class="login-card" role="main" aria-label="Login Publi.Co">
+      <!-- LEFT VISUAL -->
+      <div class="login-visual" aria-hidden="true">
+        <div class="brand">
+          <div class="logo">Pb</div>
+          <div>
+            <h2>Publi.Co</h2>
+            <p>Dashboard & Gestão de Publicações</p>
+          </div>
+        </div>
+
+        <div class="visual-content">
+          <h3>Bem-vindo de volta 👋</h3>
+          <p>Entre com sua conta para gerenciar publicações, ver relatórios e sacar insights do seu conteúdo.</p>
+        </div>
+
+        <div class="visual-hero">Painel moderno • Gráficos interativos • Acesso rápido</div>
+      </div>
+
+      <!-- RIGHT FORM -->
+      <form class="login-form" id="loginForm" novalidate>
+        <div>
+          <h3>Entrar</h3>
+          <p class="lead">Use seu email e senha para acessar o painel</p>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="seu@exemplo.com" required />
+        </div>
+
+        <div class="field">
+          <label for="password">Senha</label>
+          <div style="position:relative;">
+            <input id="password" name="password" type="password" placeholder="••••••••" required minlength="6" />
+            <button type="button" id="togglePwd" aria-label="Mostrar senha" style="position:absolute; right:8px; top:8px; background:transparent; border:none; color:var(--muted); cursor:pointer;">👁️</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="checkbox"><input type="checkbox" id="remember" /> Lembrar-me</label>
+          <a href="#" class="forgot" id="forgotLink">Esqueci a senha</a>
+        </div>
+
+        <div>
+          <button class="btn" id="submitBtn" type="submit">Entrar</button>
+          <div style="height:10px;"></div>
+          <button type="button" class="btn secondary" id="whatsBtn">Entrar via WhatsApp</button>
+        </div>
+
+        <div class="or">— ou —</div>
+
+        <div class="muted" style="margin-top:8px;">Ainda não tem conta? <a href="/cadastro" style="color:var(--accent); text-decoration:none;">Criar conta</a></div>
+
+        <div id="error" role="alert" class="error" aria-live="assertive" hidden></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ====== Config ======
+    const API_LOGIN = "/api/auth/login"; // ajuste conforme sua rota
+    const WHATS_NUMBER = "5567996152016"; // seu número opcional
+
+    // ====== UI helpers ======
+    const form = document.getElementById("loginForm");
+    const emailEl = document.getElementById("email");
+    const pwdEl = document.getElementById("password");
+    const togglePwd = document.getElementById("togglePwd");
+    const submitBtn = document.getElementById("submitBtn");
+    const errorEl = document.getElementById("error");
+    const whatsBtn = document.getElementById("whatsBtn");
+
+    togglePwd.addEventListener("click", () => {
+      if (pwdEl.type === "password") {
+        pwdEl.type = "text";
+        togglePwd.textContent = "🙈";
+        togglePwd.setAttribute("aria-label","Ocultar senha");
+      } else {
+        pwdEl.type = "password";
+        togglePwd.textContent = "👁️";
+        togglePwd.setAttribute("aria-label","Mostrar senha");
+      }
+    });
+
+    whatsBtn.addEventListener("click", () => {
+      const msg = encodeURIComponent("Olá, quero entrar no Publi.Co (preciso de ajuda para acessar minha conta).");
+      window.open(`https://wa.me/${WHATS_NUMBER}?text=${msg}`, "_blank");
+    });
+
+    // Simple frontend validation + fetch to backend
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      errorEl.hidden = true;
+      const email = emailEl.value.trim();
+      const password = pwdEl.value;
+
+      if (!email || !password) {
+        showError("Preencha email e senha.");
+        return;
+      }
+      if (password.length < 6) {
+        showError("Senha muito curta (mínimo 6 caracteres).");
+        return;
+      }
+
+      // disable UI
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Entrando...";
+
+      try {
+        const res = await fetch(API_LOGIN, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(()=>({message:"Erro no servidor"}));
+          throw new Error(err.message || "Erro ao autenticar");
+        }
+
+        const data = await res.json();
+        // exemplo: salvar token (ajuste conforme sua API)
+        if (data.token) {
+          localStorage.setItem("publi_token", data.token);
+        }
+        // redireciona para o dashboard
+        window.location.href = "/dashboard.html";
+      } catch (err) {
+        showError(err.message || "Erro ao conectar com o servidor.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Entrar";
+      }
+    });
+
+    function showError(msg){
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+  </script>
+</body>
+</html>

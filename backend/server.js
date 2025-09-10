@@ -43,6 +43,15 @@ app.use("/", controlePublicacoes);
 app.get("/", (req, res) => {
     res.render("index");
 });
+
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+app.get("/cadastro", (req, res) => {
+    res.render("cadastro");
+});
+
 app.listen(3000, () => (console.log("✅ API rodando em http://localhost:3000")));
 
 /*

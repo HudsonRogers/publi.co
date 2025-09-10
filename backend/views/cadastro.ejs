@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../public/css/cadastro.css" />
+  <title>Cadastro - Publi.Co</title>
+  
+</head>
+<body>
+  <div class="card">
+    <h2>Cadastro</h2>
+    <form>
+      <div class="field">
+        <label for="nome">Nome Completo</label>
+        <input id="nome" type="text" placeholder="Digite seu nome" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="seu@email.com" required />
+      </div>
+      <div class="field">
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" placeholder="••••••••" required />
+      </div>
+      <div class="field">
+        <label for="confirmar">Confirmar Senha</label>
+        <input id="confirmar" type="password" placeholder="••••••••" required />
+      </div>
+
+      <button type="submit" class="btn">Cadastrar</button>
+      <button type="button" class="btn secondary" id="whatsBtn">Cadastrar via WhatsApp</button>
+      <div class="extra">
+        Já tem uma conta? <a href="login.html">Entrar</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Botão WhatsApp
+    const whatsBtn = document.getElementById("whatsBtn");
+    whatsBtn.addEventListener("click", ()=>{
+      const numero = "5567996152016"; // seu número aqui
+      const msg = encodeURIComponent("Olá, quero me cadastrar no Publi.Co.");
+      window.open(`https://wa.me/${numero}?text=${msg}`, "_blank");
+    });
+  </script>
+</body>
+</html>
